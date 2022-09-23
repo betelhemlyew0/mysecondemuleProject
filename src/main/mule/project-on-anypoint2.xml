@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="project-on-anypoint2Flow" doc:id="ce838e74-cecf-481e-8509-ef6ec8689f94" >
+		<http:listener doc:name="Listener" doc:id="f1bd3cbe-9c32-423b-8699-cdf0fc789429" config-ref="HTTP_Listener_config" path="/soap"/>
+		<ee:transform doc:name="Transform Message" doc:id="d5656ed9-52c3-4719-9650-5c72cd4c395c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://www.oorsprong.org/websamples.countryinfo
+---
+{
+	ns0#ListOfCountryNamesByName: payload
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<wsc:consume doc:id="3c9f3fc1-4b78-4696-a37c-34718e2ccacd" config-ref="Web_Service_Consumer_Config" operation="ListOfCountryNamesByName"/>
+		<logger level="INFO" doc:name="Logger" doc:id="604fbe59-ddce-4dcc-8157-2bb11b20efdb" message="startlog"/>
+		<ee:transform doc:name="Transform Message" doc:id="a13ffa11-be8b-4146-83ac-e956cd9b5c4c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+((payload.body.ListOfCountryNamesByNameResponse.ListOfCountryNamesByNameResult) pluck $.sName) filter ($ startsWith "E")]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
